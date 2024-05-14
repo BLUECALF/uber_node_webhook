@@ -103,7 +103,7 @@ const convertJsonToFormData = async (jsonData) => {
         value = (value === 'one') ? 'NATIONAL_ID' : 'PASSPORT';
       }
   
-      if (uploadsKeyList[key] && jsonData.forminator_multifile_hidden[key]) {
+      if (uploadsKeyList[key] && (jsonData.forminator_multifile_hidden) && jsonData.forminator_multifile_hidden[key]) {
         // Handle file uploads
         const uploadKey = uploadsKeyList[key];
         const fileObject = jsonData.forminator_multifile_hidden[key][0]; // Get the file object
