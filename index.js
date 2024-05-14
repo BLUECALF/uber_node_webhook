@@ -33,6 +33,12 @@ app.post('/webhook', async (req, res) => {
     // Log the received data
     console.log('Data received:', jsonData);
 
+    // if we have no hidden form details we return 200 for purpose if initiating webhook.
+    if(typeof jsonData.forminator_multifile_hidden === 'undefined')
+        {
+            res.status(200).json({ success: true, response: {} });
+        } 
+
     let formData = await convertJsonToFormData(jsonData);
 
     console.log('FORM   DATA ##');
