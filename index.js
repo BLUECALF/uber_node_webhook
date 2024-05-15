@@ -78,7 +78,7 @@ const convertJsonToFormData = async (jsonData) => {
       phone_1: 'phoneNumber',
       email_1: 'email',
       text_4: 'idNumber',
-      text_5: 'passportNumber',
+      //text_5: 'passportNumber',
       text_3: 'goodConductNumber',
       text_2: 'drivingLicenceNumber',
       text_1: 'psv_badge'
@@ -87,7 +87,7 @@ const convertJsonToFormData = async (jsonData) => {
     // Mapping for keys with uploads
     const uploadsKeyList = {
       upload_1: 'idFrontDocument',
-      upload_6: 'passportDocument',
+      //upload_6: 'passportDocument',
       upload_3: 'goodConductDocument',
       upload_2: 'drivingLicenceDocument',
       upload_4: 'psvLicenceDocument',
@@ -132,7 +132,9 @@ const convertJsonToFormData = async (jsonData) => {
             }
       }
     }
-  
+
+  // add national_id as idType
+   formData.append('idType', 'NATIONAL_ID');
     return formData;
   };
   
