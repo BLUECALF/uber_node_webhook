@@ -81,7 +81,7 @@ const convertJsonToFormData = async (jsonData) => {
       //text_5: 'passportNumber',
       text_3: 'goodConductNumber',
       text_2: 'drivingLicenceNumber',
-      text_1: 'psv_badge'
+      text_1: 'psvLicenceNumber'
     };
   
     // Mapping for keys with uploads
