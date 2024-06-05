@@ -15,7 +15,53 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.get('/:id', async (req, res) => {
+  const { id } = req.params; // Access the ID from the URL parameter
+  try {
+    const url = `${config.VERIFY_DRIVER_ENDPOINT}?id=${id}`; // Construct URL with ID as query parameter
+    const response = await axios.get(url); // Send GET request with ID in query string
+
+    const realData = response.data;
+
+    res.render('result', { success: true, data: realData.data, error: null });
+  } catch (error) {
+    // Handle different error types
+    if (axios.isAxiosError(error) && !error.response) {
+      // Handle no internet errors (e.g., timeout)
+      console.error('Error fetching data (likely no internet):', error);
+      res.render('result', { success: false, data: null, error: 'We couldn\'t connect to the server. Please check your internet connection and try again later.' });
+    } else if (error.response) {
+      const { status, data } = error.response;
+      switch (status) {
+        case 400:
+          console.error('Error fetching data (400 Bad Request):', error);
+          res.render('result', { success: false, data: null, error: 'Invalid driver details. Please check your input and try again.' });
+          break;
+        case 401:
+          console.error('Error fetching data (401 Unauthorized):', error);
+          res.render('result', { success: false, data: null, error: 'You are not authorized to access this data. Please check your credentials and try again.' });
+          break;
+        case 500:
+          console.error('Error fetching data (500 Internal Server Error):', error);
+          res.render('result', { success: false, data: null, error: 'An error occurred on the server. Please try again later.' });
+          break;
+        default:
+          // Handle other server errors
+          console.error('Error fetching data:', error);
+          res.render('result', { success: false, data: null, error: 'An unexpected error occurred. Please try again later.' });
+      }
+    } else {
+      // Handle other errors (e.g., parsing error)
+      console.error('Error fetching data:', error);
+      res.render('result', { success: false, data: null, error: 'An error occurred. Please try again later.' });
+    }
+  }
+});
 app.post('/webhook', async (req, res) => {
   try {
     let jsonData;

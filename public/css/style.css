@@ -1,0 +1,16 @@
+body {
+    background-color: #f8f9fa;
+    /* No specific responsive changes needed for background color */
+  }
+  
+  h1 {
+    text-align: center;
+    color: #343a40;
+    /* Consider adding a media query for smaller screens to adjust font size */
+  }
+  
+  .table {
+    margin-top: 20px;
+    /* Consider using responsive units (e.g., rem, em) for margin */
+  }
+  
