@@ -89,7 +89,7 @@ app.post('/webhook', async (req, res) => {
 
     console.log('FORM   DATA ##');
       console.log(formData);
-    const response = await axios.post(config.EXTERNAL_ENDPOINT, formData, {
+    const response = await axios.post(config.PROD_ENDPOINT, formData, {
         headers: formData.getHeaders()
       });
 
