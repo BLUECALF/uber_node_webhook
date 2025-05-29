@@ -1,0 +1,43 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t registry.digitalocean.com/kech-registry/bgc-webhook:$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push registry.digitalocean.com/kech-registry/bgc-webhook:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update deployment file
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          sed -i 's|<IMAGE>|registry.digitalocean.com/kech-registry/bgc-webhook:'${TAG}'|' $GITHUB_WORKSPACE/deploy.yaml
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 k8s-tizi
+
+      - name: Ensure Namespace Exists
+        run: kubectl create namespace bgc --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -n bgc -f $GITHUB_WORKSPACE/deploy.yaml
+
+      - name: Verify Deployment
+        run: kubectl -n bgc rollout status deployment/bgc-webhook

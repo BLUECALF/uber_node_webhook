@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bgc-webhook
+  namespace: bgc
+spec:
+  selector:
+    matchLabels:
+      app: bgc-webhook
+  template:
+    metadata:
+      labels:
+        app: bgc-webhook
+    spec:
+      containers:
+        - name: bgc-webhook
+          image: <IMAGE>
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bgc-webhook-service
+  namespace: bgc
+spec:
+  selector:
+    app: bgc-webhook
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bgc-webhook-ingress
+  namespace: bgc
+  labels:
+    name: bgc-webhook-ingress
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: bgc-webhook.k8s.ol-digital.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: bgc-webhook-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - bgc-webhook.k8s.ol-digital.com
+      secretName: bgc-webhook-secret
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: bgc
+spec:
+  acme:
+    email: kech@ol-digital.com
+    preferredChain: ""
+    privateKeySecretRef:
+      name: letsencrypt-key
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
