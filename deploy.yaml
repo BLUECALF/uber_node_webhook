@@ -16,7 +16,7 @@ spec:
         - name: bgc-webhook
           image: <IMAGE>
           ports:
-            - containerPort: 80
+            - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
@@ -27,8 +27,8 @@ spec:
   selector:
     app: bgc-webhook
   ports:
-    - port: 80
-      targetPort: 80
+    - port: 3000
+      targetPort: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -51,7 +51,7 @@ spec:
               service:
                 name: bgc-webhook-service
                 port:
-                  number: 80
+                  number: 3000
   tls:
     - hosts:
         - bgc-webhook.k8s.ol-digital.com
